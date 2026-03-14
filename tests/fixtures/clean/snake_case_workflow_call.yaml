@@ -1,0 +1,25 @@
+name: Snake Case Workflow Call
+
+on:
+  workflow_call:
+    inputs:
+      deploy_target:
+        type: string
+      log_level:
+        type: string
+    outputs:
+      app_url:
+        description: The URL
+        value: ${{ jobs.deploy.outputs.app_url }}
+    secrets:
+      api_key:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      app_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - id: deploy
+        run: echo ${{ inputs.deploy_target }} ${{ inputs.log_level }}

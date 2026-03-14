@@ -1,0 +1,22 @@
+name: Env Sorting
+on: push
+env:
+  Z_TOKEN: abc
+  A_SECRET: xyz
+jobs:
+  build:
+    env:
+      NODE_ENV: test
+      CI: true
+      FORCE_COLOR: '1'
+    container:
+      image: node:20
+      env:
+        NODE_ENV: test
+        CI: true
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo test
+        env:
+          ZEBRA: z
+          ALPHA: a

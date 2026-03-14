@@ -1,0 +1,91 @@
+name: Kitchen Sink
+
+run-name: "${{ github.actor }} - ${{ github.event_name }}"
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint and typecheck
+        run: |
+          npm run lint
+          npm run typecheck
+
+  test:
+    name: Test (${{ matrix.os }}, node ${{ matrix.node }})
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '20']
+        os: [macos-latest, ubuntu-latest]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          node-version: ${{ matrix.node }}
+
+      - name: Install
+        run: npm ci
+
+      - name: Run tests
+        id: test_run
+        run: npm test -- --coverage
+        env:
+          FORCE_COLOR: '1'
+          NODE_ENV: test
+        continue-on-error: ${{ matrix.node == '18' }}
+
+  deploy:
+    name: Deploy to production
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://example.com
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Deploy
+        id: deploy
+        run: |
+          cdk deploy --require-approval never
+        shell: bash
+        working-directory: ./infra
+        timeout-minutes: 20

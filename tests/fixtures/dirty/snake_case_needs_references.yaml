@@ -1,0 +1,20 @@
+name: Snake Case Needs References
+on: push
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+    outputs:
+      build-tag: v1.0
+    steps:
+      - run: make build
+  run-tests:
+    needs: build-app
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ needs.build-app.outputs.build-tag }}
+  final-deploy:
+    needs: [build-app, run-tests]
+    if: ${{ needs.build-app.result == 'success' && needs.run-tests.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ needs.build-app.outputs.build-tag }}

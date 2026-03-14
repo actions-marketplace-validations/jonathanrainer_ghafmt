@@ -1,0 +1,36 @@
+name: Reusable Deploy Workflow
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: Target environment
+      version:
+        description: Version to deploy
+        required: false
+        default: latest
+        type: string
+    outputs:
+      deploy-url:
+        value: ${{ jobs.deploy.outputs.url }}
+        description: The deployed URL
+    secrets:
+      DEPLOY_TOKEN:
+        required: true
+        description: Token for deployment
+      SLACK_WEBHOOK:
+        description: Optional Slack webhook
+        required: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        id: deploy
+        run: echo "url=https://${{ inputs.environment }}.example.com" >> "$GITHUB_OUTPUT"
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}

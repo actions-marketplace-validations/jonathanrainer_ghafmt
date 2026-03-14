@@ -1,0 +1,46 @@
+name: Snake Case Enforcement
+on:
+  workflow_dispatch:
+    inputs:
+      deploy-target:
+        type: string
+        description: Where to deploy
+      logLevel:
+        type: choice
+        options:
+          - debug
+          - info
+          - warn
+        default: info
+      dry-run:
+        type: boolean
+        default: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build-artifact: ${{ steps.runBuild.outputs.artifact-path }}
+      imageTag: ${{ steps.tag-and-push.outputs.image-tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Compile
+        id: runBuild
+        run: |
+          npm ci
+          npm run build
+      - name: Tag image
+        id: tag-and-push
+        run: echo "image-tag=latest" >> "$GITHUB_OUTPUT"
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ inputs.dry-run == false }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to ${{ inputs.deploy-target }}
+        id: runDeploy
+        run: ./deploy.sh --target "${{ inputs.deploy-target }}" --log-level "${{ inputs.logLevel }}"

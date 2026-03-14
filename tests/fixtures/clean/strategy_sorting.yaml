@@ -1,0 +1,27 @@
+name: Strategy Sorting
+
+on: push
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        node: ['18', '20', '22']
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - node: '22'
+            os: ubuntu-latest
+            experimental: true
+            my_special_param: "foo"
+        exclude:
+          - node: '18'
+            os: windows-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - run: echo "test"

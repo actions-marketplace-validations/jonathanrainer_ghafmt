@@ -1,0 +1,19 @@
+name: Run Name Reorder
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy-target:
+        description: Where to deploy
+        type: string
+        default: staging
+run-name: Deploy ${{ inputs.deploy-target || 'staging' }} by @${{ github.actor }}
+env:
+  NODE_ENV: production
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "deploying to ${{ inputs.deploy-target || 'staging' }}"
+        name: Deploy

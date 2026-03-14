@@ -1,0 +1,11 @@
+name: Workflow Run Trigger
+on:
+  workflow_run:
+    workflows: [Deploy, Build, Test]
+    types: [completed, requested]
+    branches: [main, develop]
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow ${{ github.event.workflow_run.name }} finished"

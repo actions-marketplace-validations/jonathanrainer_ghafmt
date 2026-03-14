@@ -1,0 +1,51 @@
+name: Deeply Nested
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_env:
+        description: 'Environment'
+        type: choice
+        required: true
+        options:
+          - dev
+          - staging
+          - production
+      run_tests:
+        description: 'Run tests first?'
+        type: boolean
+        required: false
+        default: true
+      version:
+        description: 'Version override'
+        type: string
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.deploy_env }}
+    strategy:
+      matrix:
+        service:
+          - name: api
+            path: ./services/api
+            port: 8080
+          - name: web
+            path: ./services/web
+            port: 3000
+          - name: worker
+            path: ./services/worker
+            port: 9090
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy ${{ matrix.service.name }}
+        run: |
+          cd ${{ matrix.service.path }}
+          docker build -t ${{ matrix.service.name }}:${{ inputs.version || github.sha }} .
+          docker push ${{ matrix.service.name }}:${{ inputs.version || github.sha }}
+        env:
+          DEPLOY_ENV: ${{ inputs.deploy_env }}
+          SERVICE_PORT: ${{ matrix.service.port }}

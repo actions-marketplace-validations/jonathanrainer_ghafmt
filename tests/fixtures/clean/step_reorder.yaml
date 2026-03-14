@@ -1,0 +1,21 @@
+name: Step Reorder
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Greeting
+        run: echo "hello"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run tests
+        id: tests
+        run: cargo test
+        env:
+          RUSTFLAGS: "-D warnings"

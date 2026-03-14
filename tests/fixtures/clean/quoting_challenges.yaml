@@ -1,0 +1,36 @@
+name: Quoting Challenges
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BOOL_FALSE: "false"
+      BOOL_NO: "no"
+      BOOL_OFF: "off"
+      BOOL_ON: "on"
+      BOOL_TRUE: "true"
+      BOOL_YES: "yes"
+      BRACE_VAL: "{not: a_map}"
+      BRACKET_VAL: "[not, a, list]"
+      COLON_VAL: "key: value"
+      EMPTY_STR: ""
+      FLOAT_STR: "1.5"
+      HASH_VAL: "not a # comment"
+      NULL_STR: "null"
+      NUMERIC_STR: "123"
+    steps:
+      - name: Expressions in various positions
+        if: ${{ github.event_name == 'push' && contains(github.ref, 'refs/heads/') }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Single-quoted values
+        run: echo 'hello world'
+        env:
+          SINGLE: 'value with "double quotes" inside'

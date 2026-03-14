@@ -1,0 +1,15 @@
+name: Defaults Sorting
+on: push
+defaults:
+  run:
+    working-directory: ./app
+    shell: bash
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: ./src
+        shell: pwsh
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "build"

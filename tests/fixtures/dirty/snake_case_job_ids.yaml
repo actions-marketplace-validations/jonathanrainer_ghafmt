@@ -1,0 +1,18 @@
+name: Snake Case Job IDs
+on: push
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - run: make build
+  runTests:
+    needs: build-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - run: make test
+  deploy-to-prod:
+    needs: [build-artifacts, runTests]
+    if: ${{ needs.runTests.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./deploy.sh

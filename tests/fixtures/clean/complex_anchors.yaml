@@ -1,0 +1,55 @@
+name: Complex Anchors
+
+on: push
+
+env:
+  DEPLOY_REGION: &region us-east-1
+  NODE_VERSION: &node_ver '20'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: *node_ver
+
+      - run: npm ci
+        env:
+          AWS_REGION: *region
+
+  deploy_staging:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: *node_ver
+
+      - run: npm run deploy
+        env:
+          AWS_REGION: *region
+          STAGE: staging
+
+  deploy_prod:
+    needs: deploy_staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: *node_ver
+
+      - run: npm run deploy
+        env:
+          AWS_REGION: *region
+          STAGE: production

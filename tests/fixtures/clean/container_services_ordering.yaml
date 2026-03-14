@@ -1,0 +1,29 @@
+name: Container Services Ordering
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:20
+      credentials:
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      env:
+        NODE_ENV: test
+      ports:
+        - 8080:8080
+      volumes:
+        - /tmp:/tmp
+      options: --cpus 2
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready
+    steps:
+      - run: echo "test"

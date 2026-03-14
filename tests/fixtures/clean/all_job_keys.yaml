@@ -1,0 +1,51 @@
+name: All Job Keys
+
+on: push
+
+jobs:
+  deploy:
+    name: Deploy
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      deployments: write
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+    strategy:
+      matrix:
+        target: [eu-west-1, us-east-1]
+    timeout-minutes: 30
+    env:
+      DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./app
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: deploy
+        run: ./deploy.sh
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: make build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: make test

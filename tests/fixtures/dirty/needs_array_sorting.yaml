@@ -1,0 +1,29 @@
+name: Needs Array Sorting
+on: push
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "lint"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "build"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+  deploy:
+    needs: [test, lint, build]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "deploy"
+  notify:
+    needs: [deploy, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "notify"
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "validate"

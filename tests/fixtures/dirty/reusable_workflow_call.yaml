@@ -1,0 +1,21 @@
+name: Reusable Workflow Call
+on: push
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "linting"
+  deploy:
+    secrets: inherit
+    needs: [lint, build]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      version: "1.0.0"
+  build:
+    with:
+      node-version: '20'
+    uses: ./.github/workflows/build.yml
+    needs: lint
+    permissions:
+      contents: read

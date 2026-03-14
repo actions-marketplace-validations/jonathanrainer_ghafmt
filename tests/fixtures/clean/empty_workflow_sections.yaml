@@ -1,0 +1,16 @@
+name: Minimal Workflow
+
+on: push
+
+jobs:
+  single_step:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "only step"
+
+  with_checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1

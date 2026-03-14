@@ -1,0 +1,21 @@
+# This is a multi-line comment
+# that spans several lines
+# describing the workflow purpose
+name: Multiline Comments
+
+# Another block of
+# consecutive comments
+# before the trigger
+on: push
+
+jobs:
+  build:
+    # Multiple lines
+    # describing what
+    # this job does
+    runs-on: ubuntu-latest
+    steps:
+      # Step-level multi-line
+      # comment block
+      - name: Build
+        run: make build

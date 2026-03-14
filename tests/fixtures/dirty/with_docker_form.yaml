@@ -1,0 +1,48 @@
+name: With Docker Form
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # entrypoint + args + extras
+      - uses: docker://alpine:3
+        with:
+          args: --verbose
+          config: /etc/app.conf
+          entrypoint: /bin/sh
+          debug: true
+      # entrypoint + args only
+      - uses: docker://node:20
+        with:
+          args: --check
+          entrypoint: /usr/local/bin/node
+      # entrypoint only + extras
+      - uses: docker://python:3
+        with:
+          verbose: true
+          entrypoint: /usr/local/bin/python
+          script: main.py
+      # args only + extras
+      - uses: docker://ruby:3
+        with:
+          args: --strict
+          timeout: '30'
+          retries: '3'
+      # entrypoint only
+      - uses: docker://golang:1.22
+        with:
+          entrypoint: /usr/local/go/bin/go
+      # args only
+      - uses: docker://rust:1
+        with:
+          args: --release
+      # extras only
+      - uses: docker://ubuntu:22.04
+        with:
+          mode: test
+          config: /etc/config.yml
+      # non-docker action (alphabetical sort)
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          clean: true

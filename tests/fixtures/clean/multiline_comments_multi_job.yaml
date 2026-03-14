@@ -1,0 +1,50 @@
+# Workflow-level comment block
+# describing the CI pipeline
+name: Multi-Job Comments
+
+on: push
+
+jobs:
+  lint:
+    # Lint job description
+    # runs all linters
+    runs-on: ubuntu-latest
+    steps:
+      # First lint step
+      # installs dependencies
+      - name: Install
+        run: npm ci
+
+      # Second lint step
+      # runs eslint
+      - name: Lint
+        run: npm run lint
+
+  test:
+    # Test job description
+    # runs unit tests
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      # Setup step comment
+      # with multiple lines
+      - name: Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Run tests comment
+      # also multiple lines
+      - name: Test
+        run: npm test
+
+  deploy:
+    # Deploy job description
+    # only runs on main
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # Single comment before deploy step
+      - name: Deploy
+        run: echo "deploying"

@@ -1,0 +1,30 @@
+name: All Step Keys
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build project
+        id: build_step
+        if: runner.os == 'Linux'
+        run: |
+          make clean
+          make all
+        env:
+          CC: gcc
+        shell: bash
+        working-directory: ./src
+        timeout-minutes: 10
+        continue-on-error: true
+
+      - name: Checkout
+        id: checkout
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
+        timeout-minutes: 5
+        continue-on-error: false

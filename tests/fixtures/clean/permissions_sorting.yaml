@@ -1,0 +1,19 @@
+name: Permissions Sorting
+
+on: push
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - run: echo "deploy"

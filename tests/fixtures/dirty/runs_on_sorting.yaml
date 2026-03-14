@@ -1,0 +1,13 @@
+name: Runs On Sorting
+on: push
+jobs:
+  array-form:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - run: echo "build"
+  group-labels:
+    runs-on:
+      labels: [linux, x64]
+      group: my-runner-group
+    steps:
+      - run: echo "build"

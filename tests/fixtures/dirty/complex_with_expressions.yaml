@@ -1,0 +1,24 @@
+name: Complex With Expressions
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
+      - uses: docker/build-push-action@v5
+        name: Build and push
+        with:
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          push: ${{ github.event_name != 'pull_request' }}
+          context: .
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            COMMIT=${{ github.sha }}

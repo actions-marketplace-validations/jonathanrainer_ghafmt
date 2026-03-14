@@ -1,0 +1,10 @@
+name: Environment Ordering
+on: push
+jobs:
+  deploy:
+    environment:
+      url: https://example.com
+      name: production
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "deploy"

@@ -1,0 +1,20 @@
+name: Snake Case Matrix and Services
+
+on: push
+
+jobs:
+  test:
+    runs-on: ${{ matrix.operating_system }}
+    services:
+      test_db:
+        image: postgres:15
+    strategy:
+      matrix:
+        node_version: ['18', '20']
+        operating_system: [macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - run: echo ${{ matrix.operating_system }}

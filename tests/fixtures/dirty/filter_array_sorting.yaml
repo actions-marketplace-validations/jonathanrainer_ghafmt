@@ -1,0 +1,19 @@
+name: Filter Array Sorting
+on:
+  pull_request:
+    types: [synchronize, opened, reopened]
+    paths:
+      - 'tests/**'
+      - 'src/**'
+      - '*.json'
+    branches: [main, develop, feature/*]
+  push:
+    tags:
+      - 'v2.*'
+      - 'v1.*'
+    branches: [main, develop]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello"

@@ -1,0 +1,29 @@
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run lint
+name: Complex Triggers
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - '*.json'
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+  schedule:
+    - cron: '0 2 * * 1'

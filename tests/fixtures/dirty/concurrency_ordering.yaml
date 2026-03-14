@@ -1,0 +1,13 @@
+name: Concurrency Ordering
+on: push
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+jobs:
+  deploy:
+    concurrency:
+      cancel-in-progress: false
+      group: deploy-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo deploy

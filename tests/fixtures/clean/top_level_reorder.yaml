@@ -1,0 +1,14 @@
+name: Top Level Reorder
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CI: "true"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm test
