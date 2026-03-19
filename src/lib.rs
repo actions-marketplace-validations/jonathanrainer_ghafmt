@@ -13,7 +13,7 @@ use tracing::info;
 
 use crate::{
     cli::{ColourMode, Mode},
-    commands::Command,
+    commands::{Command, build_handler, render_error},
     fs::{expand_paths, read_from_stdin},
     workflow_emitter::WorkflowEmitter,
     workflow_processor::WorkflowProcessor,
@@ -30,28 +30,15 @@ mod workflow_emitter;
 mod workflow_processor;
 
 /// The formatted output and any advisory warnings produced for one file.
-struct FormatterResult {
+pub(crate) struct FormatterResult {
     /// Path to the source file, or `"-"` for stdin.
-    input: InputArg,
+    pub(crate) input: InputArg,
     /// Formatted YAML output.
-    output: String,
-    /// Original content before formatting. Only `Some` for stdin, where the source
-    /// cannot be re-read from disk for `--mode=check`/`--mode=list` comparisons.
-    original: Option<String>,
+    pub(crate) output: String,
+    /// Original content before formatting, captured at read time.
+    pub(crate) original: String,
     /// Non-fatal warnings produced during formatting.
-    warnings: Vec<Warning>,
-}
-
-impl FormatterResult {
-    /// Returns the original file content before formatting.
-    ///
-    /// For stdin, this is the captured input stored in [`FormatterResult::original`].
-    /// For file paths, the file is re-read from disk on demand.
-    fn original_content(&self) -> Option<String> {
-        self.original
-            .clone()
-            .or_else(|| self.input.read_to_string().ok())
-    }
+    pub(crate) warnings: Vec<Warning>,
 }
 
 /// Top-level formatter that processes and emits a GitHub Actions workflow file.
@@ -73,27 +60,34 @@ impl Ghafmt {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            workflow_processor: WorkflowProcessor::new(),
+            workflow_processor: WorkflowProcessor::default(),
             workflow_emitter: WorkflowEmitter::new(),
         }
     }
 
     #[must_use]
     pub fn run(
-        mut self,
+        &mut self,
         files: Vec<InputArg>,
         mode: Mode,
         colour_mode: ColourMode,
         quiet: bool,
     ) -> ExitCode {
+        let handler = build_handler(colour_mode);
+
         if matches!(mode, Mode::Write) && files.iter().any(InputArg::is_stdin) {
-            eprintln!("error: stdin (-) cannot be used with --mode=write");
+            render_error(&handler, &Error::StdinCannotBeUsedWithWrite);
+            return ExitCode::FAILURE;
+        }
+
+        if matches!(mode, Mode::List) && files.iter().any(InputArg::is_stdin) {
+            render_error(&handler, &Error::StdinCannotBeUsedWithList);
             return ExitCode::FAILURE;
         }
 
         // Default (stdout) mode can only handle one file; all other modes accept many.
         if matches!(mode, Mode::Format) && files.len() > 1 {
-            eprintln!("error: multiple files require --mode=write, --mode=check, or --mode=list");
+            render_error(&handler, &Error::MultipleFilesNotValidInDefaultMode);
             return ExitCode::FAILURE;
         }
 
@@ -134,7 +128,7 @@ impl Ghafmt {
                 .map(|(output, warnings)| FormatterResult {
                     input: file.clone(),
                     output,
-                    original: Some(content),
+                    original: content,
                     warnings,
                 });
             results.push(result);

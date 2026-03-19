@@ -71,27 +71,6 @@ impl Rename {
     }
 }
 
-impl Ord for Rename {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        // Deepest paths first so parent paths remain valid during mutation
-        other.depth().cmp(&self.depth())
-    }
-}
-
-impl PartialOrd for Rename {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl PartialEq for Rename {
-    fn eq(&self, other: &Self) -> bool {
-        self.depth() == other.depth()
-    }
-}
-
-impl Eq for Rename {}
-
 /// Defines how a category of identifier references is classified, matched, and rewritten.
 struct RefRule {
     /// Matches document paths to determine if a rename belongs to this category.
@@ -183,7 +162,7 @@ impl StructureTransformer for CaseEnforcer {
         }
 
         // Phase B: Apply renames (deepest paths first so parent paths remain valid)
-        renames.sort();
+        renames.sort_by_key(|r| std::cmp::Reverse(r.depth()));
 
         for rename in &renames {
             let e = rename.entry();
@@ -390,7 +369,7 @@ impl CaseEnforcer {
     }
 
     /// Convert a set of renames in a list of renames we need to make
-    fn classify_renames(&self, renames: &Vec<Rename>) -> Vec<HashMap<String, String>> {
+    fn classify_renames(&self, renames: &[Rename]) -> Vec<HashMap<String, String>> {
         let mut ref_renames: Vec<HashMap<String, String>> =
             vec![HashMap::new(); self.ref_kinds.len()];
         for rename in renames {
