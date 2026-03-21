@@ -417,7 +417,7 @@ dependencies = [
 [[package]]
 name = "fyaml-sys"
 version = "0.1.1-alpha.1+fy0.9.3-16-ged4720d"
-source = "git+https://github.com/jonathanrainer/fyaml-sys?rev=e20299ae18671385e609b7a80eee2de14f0facaf#e20299ae18671385e609b7a80eee2de14f0facaf"
+source = "git+https://github.com/jonathanrainer/fyaml-sys?rev=9ccbc1a05dd4aca4e71ce91fbee114f686ff66ab#9ccbc1a05dd4aca4e71ce91fbee114f686ff66ab"
 dependencies = [
  "bindgen",
  "cc",
