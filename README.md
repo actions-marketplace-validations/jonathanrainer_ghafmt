@@ -16,13 +16,18 @@ noise.
 - Top-level workflow keys sorted (`name` → `on` → `env` → `jobs`)
 - Trigger events, `needs` arrays, `runs-on` arrays, and filter arrays sorted alphabetically
 - Blank lines inserted between top-level keys, jobs, and steps
-- Job IDs and step IDs converted to `snake_case`
+- Job IDs, step IDs and job-level outputs converted to `snake_case`, with references updated
+- `workflow_call` / `workflow_dispatch` inputs, secrets and outputs are left unchanged, as they are a workflow's public interface and callers refer to them by name
+- `workflow_call` inputs and secrets, and `workflow_dispatch` inputs, sorted with `required: true` entries first, then alphabetically within each group
 - Keys within `with`, `env`, `permissions`, and similar maps sorted alphabetically
+
+> [!NOTE]
+> A job without a `name:` is reported to GitHub under its job ID, so renaming `check-pr` to `check_pr` changes the check name that branch protection rules match against. Add a `name:` to the job to keep the check name stable.
 
 **Action metadata formatting rules (`action.yml` / `action.yaml`):**
 
 - Top-level keys sorted to canonical order: `name` → `description` → `author` → `inputs` → `outputs` → `runs` → `branding`
-- `inputs` and `outputs` sorted alphabetically; per-entry keys sorted idiomatically
+- `inputs` sorted with `required: true` entries first, then alphabetically within each group; `outputs` sorted alphabetically; per-entry keys sorted idiomatically
 - `runs` keys sorted by action type: composite (`using` → `steps`), JavaScript (`using` → `pre` → `pre-if` → `main` → `post` → `post-if`), Docker (`using` → `image` → `args` → `env` → `pre-entrypoint` → `entrypoint` → `post-entrypoint`)
 - Step keys and `with` maps inside composite action steps sorted alphabetically
 - Step IDs converted to `snake_case`
@@ -180,7 +185,7 @@ Use the bundled action — it downloads the correct pre-built binary for the run
 discovers both workflow files and any `action.yml`/`action.yaml` files in the repository:
 
 ```yaml
-- uses: jonathanrainer/ghafmt@6ca7fada15c9e58b3c85a3fa12433ca23eda5b2e # v0.1.5
+- uses: jonathanrainer/ghafmt@36e5fd1bfa2169c39007923c27a38c97eae14d12 # v0.2.0
   with:
     mode: check          # check (default) | write | list
     path: .github/workflows/
